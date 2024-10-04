@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Operations</title>
+    <link rel="stylesheet" href="./withdep.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+
+<body>
+    <center><h1>Online Banking</h1></center>
+    <div class="row">
+        <div class="col mt-5">
+            <h2>Deposit 💰</h2>
+            <form id="depositForm" class="bg-light border border-light shadow p-4 m-2">
+                <label class="float-start">Amount</label>
+                <input type="number" id="depositAmount" placeholder="Enter deposit amount" class="form-control mb-3">
+                <label class="float-start">Password</label>
+                <input type="password" id="depositPassword" placeholder="Enter your password" class="form-control mb-3">
+                <button class="btn btn-outline btn-primary" type="button" onclick="deposit()">Deposit</button>
+            </form>
+            <p id="depositMessage" class="text-center"></p>
+        </div>
+        <div class="col mt-5">
+            <h2>Withdraw 💸</h2>
+            <form id="withdrawForm" class="bg-light border border-light shadow p-4 m-2">
+                <label class="float-start">Amount</label>
+                <input type="number" id="withdrawAmount" placeholder="Enter withdrawal amount" class="form-control mb-3">
+                <label class="float-start">Password</label>
+                <input type="password" id="withdrawPassword" placeholder="Enter your password" class="form-control mb-3">
+                <button class="btn btn-outline btn-primary" type="button" onclick="withdraw()">Withdraw</button>
+            </form>
+            <p id="withdrawMessage" class="text-center"></p>
+        </div>
+    </div>
+
+   
+    <div class="container mt-5">
+        <h3>Account Balance: <span id="currentBalance">--</span> 💲</h3>
+    </div>
+
+    <script>
+        function updateBalanceDisplay(balance) {
+            document.getElementById('currentBalance').innerText = balance !== undefined ? balance : "--";
+        }
+
+        function deposit() {
+            const accountNumber = prompt("Enter your account number"); 
+            const depositAmount = parseFloat(document.getElementById('depositAmount').value);
+            const password = document.getElementById('depositPassword').value;
+
+           
+            const account = JSON.parse(localStorage.getItem(accountNumber));
+
+            if (account) {
+                if (account.password === password) {
+                    if (isNaN(depositAmount) || depositAmount <= 0) {
+                        document.getElementById('depositMessage').innerText = "⚠ Invalid amount.";
+                    } else {
+                        account.balance += depositAmount; 
+                        localStorage.setItem(accountNumber, JSON.stringify(account));
+                        document.getElementById('depositMessage').innerText = `✅ Amount successfully added. Current Balance: ${account.balance}`;
+                        updateBalanceDisplay(account.balance); 
+                    }
+                } else {
+                    document.getElementById('depositMessage').innerText = "⚠ Incorrect password.";
+                    updateBalanceDisplay();
+                }
+            } else {
+                document.getElementById('depositMessage').innerText = "⚠ Account not found.";
+                updateBalanceDisplay();
+            }
+        }
+
+        function withdraw() {
+            const accountNumber = prompt("Enter your account number"); 
+            const withdrawAmount = parseFloat(document.getElementById('withdrawAmount').value);
+            const password = document.getElementById('withdrawPassword').value;
+
+           
+            const account = JSON.parse(localStorage.getItem(accountNumber));
+
+            if (account) {
+                if (account.password === password) {
+                    if (isNaN(withdrawAmount) || withdrawAmount <= 0) {
+                        document.getElementById('withdrawMessage').innerText = "⚠ Invalid amount.";
+                    } else if (account.balance >= withdrawAmount) {
+                        account.balance -= withdrawAmount;
+                        localStorage.setItem(accountNumber, JSON.stringify(account)); 
+                        document.getElementById('withdrawMessage').innerText = `✅ Amount successfully withdrawn. Current Balance: ${account.balance}`;
+                        updateBalanceDisplay(account.balance);
+                    } else {
+                        document.getElementById('withdrawMessage').innerText = "⚠ Insufficient balance.";
+                    }
+                } else {
+                    document.getElementById('withdrawMessage').innerText = "⚠ Incorrect password.";
+                    updateBalanceDisplay();
+                }
+            } else {
+                document.getElementById('withdrawMessage').innerText = "⚠ Account not found.";
+                updateBalanceDisplay();
+            }
+        }
+    </script>
+</body>
+
+</html>
+
